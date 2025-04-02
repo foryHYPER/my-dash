@@ -1,10 +1,8 @@
 import { 
   Briefcase, 
-  Users, 
-  TrendingUp, 
+  Users,  
   Clock, 
   CheckCircle2, 
-  Building2 
 } from "lucide-react"
 import { KPICard } from "@/components/dashboard/kpi-card"
 import { DashboardContent } from "@/components/layout/dashboard-content"

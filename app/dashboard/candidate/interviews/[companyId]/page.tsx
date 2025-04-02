@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Calendar, Clock, Building2, MapPin, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
+import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
 import { DashboardContent } from "@/components/layout/dashboard-content"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -12,9 +12,9 @@ import { useState } from "react"
 import Link from "next/link"
 
 // Mock data for company interviews
-const mockCompanyInterviews = {
+const mockCompanyInterviews = (companyId: string) => ({
   company: {
-    id: 1,
+    id: parseInt(companyId),
     name: "Acme Inc.",
     position: "Senior Frontend Developer"
   },
@@ -50,13 +50,13 @@ const mockCompanyInterviews = {
       notes: "Initial screening interview"
     }
   ]
-}
+})
 
 export default function CompanyInterviewsPage({ params }: { params: { companyId: string } }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
-  const [interviews, setInterviews] = useState(mockCompanyInterviews.interviews)
+  const interviews = mockCompanyInterviews(params.companyId).interviews
   const [selectedInterview, setSelectedInterview] = useState<any>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
 
@@ -103,8 +103,8 @@ export default function CompanyInterviewsPage({ params }: { params: { companyId:
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold">{mockCompanyInterviews.company.name}</h1>
-              <p className="text-sm text-muted-foreground">{mockCompanyInterviews.company.position}</p>
+              <h1 className="text-3xl font-bold">{mockCompanyInterviews(params.companyId).company.name}</h1>
+              <p className="text-sm text-muted-foreground">{mockCompanyInterviews(params.companyId).company.position}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">

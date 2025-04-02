@@ -3,7 +3,6 @@
 import { Search, Building2, Calendar } from "lucide-react"
 import { DashboardContent } from "@/components/layout/dashboard-content"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"

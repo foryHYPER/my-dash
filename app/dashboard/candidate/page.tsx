@@ -1,7 +1,5 @@
 import { 
-  Briefcase, 
-  FileText, 
-  Clock, 
+  FileText,  
   CheckCircle2, 
   Star, 
   User 

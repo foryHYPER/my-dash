@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Calendar, Clock, User, Building2, MapPin, Video, Phone, CheckCircle2, XCircle } from "lucide-react"
+import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle } from "lucide-react"
 import { DashboardContent } from "@/components/layout/dashboard-content"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -54,7 +54,7 @@ export default function AppointmentsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
-  const [appointments, setAppointments] = useState(mockAppointments)
+  const appointments = mockAppointments
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
 
