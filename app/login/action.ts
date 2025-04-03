@@ -4,6 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+// Define a custom error type for better error handling
+type AppError = Error | { message?: string; [key: string]: any }
+
 export async function login(formData: FormData) {
   try {
     console.log("Login action started");
@@ -75,16 +78,19 @@ export async function login(formData: FormData) {
         } else {
           redirect('/dashboard');
         }
-      } catch (profileError: any) {
-        console.error("Unerwarteter Fehler beim Abrufen des Profils:", profileError);
-        redirect('/login?error=profile_error&message=' + encodeURIComponent(profileError.message || 'Unbekannter Fehler'))
+      } catch (profileError: unknown) {
+        const err = profileError as AppError;
+        console.error("Unerwarteter Fehler beim Abrufen des Profils:", err);
+        redirect('/login?error=profile_error&message=' + encodeURIComponent(err.message || 'Unbekannter Fehler'))
       }
-    } catch (authError: any) {
-      console.error("Unerwarteter Fehler beim Authentifizieren:", authError);
-      redirect('/login?error=auth_error&message=' + encodeURIComponent(authError.message || 'Unbekannter Fehler'))
+    } catch (authError: unknown) {
+      const err = authError as AppError;
+      console.error("Unerwarteter Fehler beim Authentifizieren:", err);
+      redirect('/login?error=auth_error&message=' + encodeURIComponent(err.message || 'Unbekannter Fehler'))
     }
-  } catch (error: any) {
-    console.error("Allgemeiner Fehler im Login-Prozess:", error);
-    redirect('/login?error=unexpected_error&message=' + encodeURIComponent(error.message || 'Unbekannter Fehler'))
+  } catch (error: unknown) {
+    const err = error as AppError;
+    console.error("Allgemeiner Fehler im Login-Prozess:", err);
+    redirect('/login?error=unexpected_error&message=' + encodeURIComponent(err.message || 'Unbekannter Fehler'))
   }
 }
