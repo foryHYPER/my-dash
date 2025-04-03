@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react'
 
 interface RoleGuardProps {
   children: React.ReactNode
-  allowedRole: 'company' | 'candidate'
+  allowedRole: 'admin' | 'company' | 'candidate'
 }
 
 export function RoleGuard({ children, allowedRole }: RoleGuardProps) {
@@ -61,8 +61,14 @@ export function RoleGuard({ children, allowedRole }: RoleGuardProps) {
         console.log("RoleGuard: Profile found, role =", profile.role)
         if (profile.role !== allowedRole) {
           console.log("RoleGuard: Role mismatch, redirecting")
-          router.push(profile.role === 'company' ? '/dashboard/company' : '/dashboard/candidate')
-          return
+          if (profile.role === 'admin') {
+            router.push('/dashboard/admin');
+          } else if (profile.role === 'company') {
+            router.push('/dashboard/company');
+          } else {
+            router.push('/dashboard/candidate');
+          }
+          return;
         }
 
         // Role matched the allowed role, show content

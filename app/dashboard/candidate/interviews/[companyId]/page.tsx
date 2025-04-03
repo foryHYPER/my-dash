@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { useState, use, Suspense } from "react"
+import { useState, Suspense, use } from "react"
 import Link from "next/link"
 
 
@@ -22,15 +22,13 @@ interface Interview {
   notes: string
 }
 
-type Params = Promise<{
+interface PageParams {
   companyId: string
-}>
-
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+}
 
 interface PageProps {
-  params: Params
-  searchParams?: SearchParams
+  params: PageParams | Promise<PageParams>
+  searchParams?: { [key: string]: string | string[] | undefined }
 }
 
 // Mock data for company interviews
@@ -268,16 +266,12 @@ function InterviewsContent({ companyId }: { companyId: string }) {
 }
 
 export default function CompanyInterviewsPage({ params }: PageProps) {
-  try {
-    const resolvedParams = use(params)
-
-    return (
-      <Suspense fallback={<div>Loading...</div>}>
-        <InterviewsContent companyId={resolvedParams.companyId} />
-      </Suspense>
-    )
-  } catch (error) {
-    console.error('Error in CompanyInterviewsPage:', error)
-    return <div>Something went wrong. Please try again later.</div>
-  }
+  // Unwrap the params object with React.use() if it's a Promise
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InterviewsContent companyId={resolvedParams.companyId} />
+    </Suspense>
+  )
 } 

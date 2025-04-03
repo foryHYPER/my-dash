@@ -1,10 +1,8 @@
 "use client"
 
-import * as React from "react"
 import { SidebarIcon } from "lucide-react"
-import { usePathname } from "next/navigation"
 
-
+import { SearchForm } from "@/components/search-form"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,32 +15,8 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useSidebar } from "@/components/ui/sidebar"
 
-const routeTranslations: Record<string, string> = {
-  dashboard: "Dashboard",
-  overview: "Übersicht",
-  applications: "Bewerbungen",
-  "saved-jobs": "Gespeicherte Jobs",
-  profile: "Profil",
-  "personal-info": "Persönliche Daten",
-  skills: "Fähigkeiten",
-  experience: "Erfahrung",
-  education: "Ausbildung",
-  "active-jobs": "Aktive Jobs",
-  "post-job": "Neuen Job erstellen",
-  "manage-jobs": "Jobs verwalten",
-  candidates: "Kandidaten",
-  company: "Unternehmen",
-  team: "Team",
-  settings: "Einstellungen",
-  support: "Support",
-  feedback: "Feedback",
-  interviews: "Terminübersicht",
-}
-
 export function SiteHeader() {
   const { toggleSidebar } = useSidebar()
-  const pathname = usePathname()
-  const paths = pathname.split('/').filter(Boolean)
 
   return (
     <header className="bg-background sticky top-0 z-50 flex w-full items-center border-b">
@@ -58,27 +32,18 @@ export function SiteHeader() {
         <Separator orientation="vertical" className="mr-2 h-4" />
         <Breadcrumb className="hidden sm:block">
           <BreadcrumbList>
-            {paths.map((path, index) => {
-              const translation = routeTranslations[path] || path
-              const isLast = index === paths.length - 1
-              const href = `/${paths.slice(0, index + 1).join('/')}`
-
-              return (
-                <React.Fragment key={path}>
-                  <BreadcrumbItem>
-                    {isLast ? (
-                      <BreadcrumbPage>{translation}</BreadcrumbPage>
-                    ) : (
-                      <BreadcrumbLink href={href}>{translation}</BreadcrumbLink>
-                    )}
-                  </BreadcrumbItem>
-                  {!isLast && <BreadcrumbSeparator />}
-                </React.Fragment>
-              )
-            })}
+            <BreadcrumbItem>
+              <BreadcrumbLink href="#">
+                Building Your Application
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+            </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-
+        <SearchForm className="w-full sm:ml-auto sm:w-auto" />
       </div>
     </header>
   )

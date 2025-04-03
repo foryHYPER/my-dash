@@ -1,27 +1,32 @@
 "use client"
 
-import * as React from "react"
-import Link from "next/link"
-import {
-  Frame,
-  LifeBuoy,
-  Map,
-  PieChart,
-  Send,
-  SquareTerminal,
-  Briefcase,
-  User,
-  FileText,
-  Building2,
-  Calendar,
-} from "lucide-react"
+import React from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { 
+  BookOpen, 
+  Bot, 
+  Briefcase, 
+  Building2, 
+  Calendar, 
+  Command, 
+  FileText, 
+  Frame, 
+  LifeBuoy, 
+  Map, 
+  PieChart, 
+  Send, 
+  Settings2, 
+  SquareTerminal,
+  User
+} from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { Role } from "@/lib/supabase"
 
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "./nav-main"
+import { NavProjects } from "./nav-projects"
+import { NavSecondary } from "./nav-secondary"
+import { NavUser } from "./nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -232,8 +237,7 @@ interface AppSidebarProps {
   user: User
 }
 
-export function AppSidebar({ user }: AppSidebarProps) {
-  const [isLoading, setIsLoading] = React.useState(true)
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
   const router = useRouter()
   const supabase = createClient()
 
@@ -251,38 +255,6 @@ export function AppSidebar({ user }: AppSidebarProps) {
     }
   }
 
-  React.useEffect(() => {
-    const getUser = async () => {
-      try {
-        setIsLoading(true)
-        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
-        
-        if (authError) {
-          console.error('Authentication error:', authError.message)
-          router.push('/login')
-          return
-        }
-
-        if (!authUser) {
-          console.error('No authenticated user found')
-          router.push('/login')
-          return
-        }
-
-        setIsLoading(false)
-      } catch (error) {
-        console.error('Error fetching user:', error)
-        router.push('/login')
-      }
-    }
-
-    getUser()
-  }, [router, supabase.auth])
-
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
   const navigation = {
     navMain: navigationData[user.role]?.navMain || [],
     navSecondary: navigationData.navSecondary,
@@ -290,27 +262,53 @@ export function AppSidebar({ user }: AppSidebarProps) {
   }
 
   return (
-    <Sidebar className="top-(--header-height) h-[calc(100svh-var(--header-height))]!">
-      <SidebarHeader>
-        <NavUser user={user} onLogout={handleLogout} />
+    <Sidebar 
+      className="h-[calc(100vh-3.5rem)] border-r sticky top-[3.5rem]"
+      {...props}
+    >
+      <SidebarHeader className="pt-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <a href="#">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <img 
+                    src="/logo.png" 
+                    alt="RE-24 JOBS" 
+                    className="h-5 w-auto" 
+                  />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">RE24 JOBS</span>
+                  <span className="truncate text-xs">{user.role}</span>
+                </div>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
+        {/* Main navigation items */}
         <NavMain items={navigation.navMain} />
-        <NavSecondary items={navigation.navSecondary} />
+        
+        {/* Projects section if available */}
+        {navigation.projects && navigation.projects.length > 0 && (
+          <NavProjects projects={navigation.projects} />
+        )}
+        
+        {/* Secondary navigation with mt-auto to push it down but above footer */}
+        <NavSecondary items={navigation.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          {navigation.projects.map((project) => (
-            <SidebarMenuItem key={project.name}>
-              <SidebarMenuButton asChild>
-                <Link href={project.url}>
-                  {project.icon && <project.icon className="mr-2 h-4 w-4" />}
-                  {project.name}
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        {/* User information at the bottom */}
+        <NavUser 
+          user={{
+            name: user.name || user.email,
+            email: user.email,
+            avatar: user.avatar || ''
+          }}
+          onLogout={handleLogout}
+        />
       </SidebarFooter>
     </Sidebar>
   )
