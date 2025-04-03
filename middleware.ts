@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
+// Definiere öffentliche Routen
+const publicRoutes = ['/login', '/auth', '/register']
+const isPublicRoute = (path: string) => publicRoutes.some(route => path.startsWith(route))
+
 export async function middleware(request: NextRequest) {
   try {
-    // Statische Ressourcen überspringen
+    // Statische Ressourcen und API-Routen überspringen
     if (
       request.nextUrl.pathname.startsWith('/_next') ||
       request.nextUrl.pathname.startsWith('/api') ||
@@ -14,8 +18,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    let response = NextResponse.next()
+    // Response erstellen
+    const response = NextResponse.next()
 
+    // Supabase Client erstellen
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -25,16 +31,6 @@ export async function middleware(request: NextRequest) {
             return request.cookies.get(name)?.value
           },
           set(name, value, options) {
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
             response.cookies.set({
               name,
               value,
@@ -42,16 +38,6 @@ export async function middleware(request: NextRequest) {
             })
           },
           remove(name, options) {
-            request.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
             response.cookies.set({
               name,
               value: '',
@@ -62,28 +48,33 @@ export async function middleware(request: NextRequest) {
       }
     )
 
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    // Session überprüfen
+    const { data: { session } } = await supabase.auth.getSession()
+    const currentPath = request.nextUrl.pathname
 
-    // Öffentliche Routen
-    const publicRoutes = ['/login', '/auth', '/register']
-    if (publicRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
-      return response
-    }
-
-    // Wenn kein Session und nicht auf öffentlicher Route, redirect zu Login
-    if (!session) {
-      const redirectUrl = new URL('/login', request.url)
+    // Wenn auf einer öffentlichen Route und eingeloggt, zum Dashboard weiterleiten
+    if (session && isPublicRoute(currentPath)) {
+      const redirectUrl = new URL('/dashboard', request.url)
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Session existiert, erlaube Zugriff
+    // Wenn nicht auf einer öffentlichen Route und nicht eingeloggt, zum Login weiterleiten
+    if (!session && !isPublicRoute(currentPath)) {
+      const redirectUrl = new URL('/login', request.url)
+      redirectUrl.searchParams.set('returnTo', currentPath)
+      return NextResponse.redirect(redirectUrl)
+    }
+
     return response
 
   } catch (error) {
     console.error('Middleware error:', error)
-    // Bei einem Fehler zur Login-Seite umleiten
-    const redirectUrl = new URL('/login', request.url)
-    return NextResponse.redirect(redirectUrl)
+    // Bei einem Fehler zur Login-Seite umleiten, aber nur wenn nicht bereits auf einer öffentlichen Route
+    if (!isPublicRoute(request.nextUrl.pathname)) {
+      const redirectUrl = new URL('/login', request.url)
+      return NextResponse.redirect(redirectUrl)
+    }
+    return NextResponse.next()
   }
 }
 
