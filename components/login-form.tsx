@@ -82,7 +82,24 @@ export function LoginForm({
         password: formData.password
       })
 
-      if (authError) throw authError
+      if (authError) {
+        if (authError.message.includes('Invalid login credentials')) {
+          setErrors({ email: "Invalid email or password" })
+        } else if (authError.message.includes('Email not confirmed')) {
+          setErrors({ email: "Please confirm your email address before logging in" })
+        } else if (authError.message.includes('rate limit')) {
+          setErrors({ email: "Too many login attempts. Please try again later." })
+        } else {
+          console.error('Auth error:', authError)
+          setErrors({ email: "An error occurred during login. Please try again." })
+        }
+        return
+      }
+
+      if (!authData.user) {
+        setErrors({ email: "No user data received. Please try again." })
+        return
+      }
 
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
@@ -90,16 +107,24 @@ export function LoginForm({
         .eq('id', authData.user.id)
         .single()
 
-      if (profileError) throw profileError
+      if (profileError) {
+        console.error('Profile error:', profileError)
+        setErrors({ email: "Error fetching user profile. Please try again." })
+        return
+      }
+
+      if (!profile) {
+        setErrors({ email: "User profile not found. Please contact support." })
+        return
+      }
 
       setLoginAttempts(0)
-      
       const basePath = profile.role === 'company' ? '/dashboard/company' : '/dashboard/candidate'
       router.push(basePath)
       
     } catch (err) {
       console.error('Login error:', err)
-      setErrors({ email: "Invalid email or password" })
+      setErrors({ email: "An unexpected error occurred. Please try again." })
     } finally {
       setIsLoading(false)
     }
