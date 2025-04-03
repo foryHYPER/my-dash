@@ -57,7 +57,15 @@ function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.Form
     try {
       await onSubmit(event)
     } catch (error) {
-      console.error("Fehler beim Login:", error)
+      // Check if this is a Next.js redirect "error" (not a real error)
+      // NEXT_REDIRECT errors are expected when redirect() is called in a server action
+      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+        // This is not an error, but Next.js's way of handling redirects
+        console.log("Redirecting after login...")
+      } else {
+        console.error("Fehler beim Login:", error)
+        setErrorMessage("Ein Fehler ist beim Login aufgetreten. Bitte versuchen Sie es erneut.")
+      }
     } finally {
       setIsLoading(false)
     }
