@@ -26,11 +26,6 @@ interface PageParams {
   companyId: string
 }
 
-interface PageProps {
-  params: PageParams | Promise<PageParams>
-  searchParams?: { [key: string]: string | string[] | undefined }
-}
-
 // Mock data for company interviews
 const mockCompanyInterviews = (companyId: string) => ({
   company: {
@@ -265,13 +260,16 @@ function InterviewsContent({ companyId }: { companyId: string }) {
   )
 }
 
-export default function CompanyInterviewsPage({ params }: PageProps) {
-  // Unwrap the params object with React.use() if it's a Promise
-  const resolvedParams = params instanceof Promise ? use(params) : params;
-  
+export default function CompanyInterviewsPage({
+  params,
+  searchParams,
+}: {
+  params: PageParams
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <InterviewsContent companyId={resolvedParams.companyId} />
+      <InterviewsContent companyId={params.companyId} />
     </Suspense>
   )
 } 
