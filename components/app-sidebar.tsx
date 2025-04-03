@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import type { Profile } from "@/lib/supabase/profiles"
+import type { Profile } from "@/lib/supabase"
 import { AppSidebar as BaseAppSidebar } from "./app-sidebar-base"
 
 export function AppSidebar() {

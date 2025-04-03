@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
   Frame,
   LifeBuoy,
@@ -16,7 +17,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
-
+import { Role } from "@/lib/supabase"
 
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
@@ -32,6 +33,30 @@ import {
 } from "@/components/ui/sidebar"
 
 const navigationData = {
+  admin: {
+    navMain: [
+      {
+        title: "Dashboard",
+        url: "#",
+        icon: SquareTerminal,
+        isActive: true,
+        items: [
+          {
+            title: "Übersicht",
+            url: "/dashboard/admin",
+          },
+          {
+            title: "Benutzer",
+            url: "/dashboard/admin/users",
+          },
+          {
+            title: "Einstellungen",
+            url: "/dashboard/admin/settings",
+          },
+        ],
+      },
+    ],
+  },
   candidate: {
     navMain: [
       {
@@ -179,7 +204,6 @@ const navigationData = {
   ],
   projects: [
     {
-      
       name: "Funnel 1",
       url: "#",
       icon: Frame,
@@ -197,20 +221,18 @@ const navigationData = {
   ],
 }
 
-
-
-
-interface AppSidebarProps {
-  user: {
-    name: string
-    email: string
-    avatar: string
-    role: "candidate" | "company"
-  }
+interface User {
+  name: string
+  email: string
+  avatar: string
+  role: Role
 }
 
-export function AppSidebar({ user: initialUser, ...props }: AppSidebarProps & React.ComponentProps<typeof Sidebar>) {
-  const [user, setUser] = React.useState(initialUser)
+interface AppSidebarProps {
+  user: User
+}
+
+export function AppSidebar({ user }: AppSidebarProps) {
   const [isLoading, setIsLoading] = React.useState(true)
   const router = useRouter()
   const supabase = createClient()
@@ -247,82 +269,48 @@ export function AppSidebar({ user: initialUser, ...props }: AppSidebarProps & Re
           return
         }
 
-        // Fetch additional user data from your profiles table
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', authUser.id)
-          .single()
-
-        if (profileError) {
-          console.error('Error fetching profile:', profileError.message)
-          return
-        }
-
-        if (!profile) {
-          console.error('No profile found for user')
-          return
-        }
-
-        setUser({
-          name: profile.name || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
-          email: authUser.email || '',
-          avatar: profile.avatar_url || authUser.user_metadata?.avatar_url || '',
-          role: profile.role || 'candidate',
-        })
-      } catch (error) {
-        console.error('Error in getUser:', error)
-        router.push('/login')
-      } finally {
         setIsLoading(false)
+      } catch (error) {
+        console.error('Error fetching user:', error)
+        router.push('/login')
       }
     }
 
     getUser()
-  }, [router])
+  }, [router, supabase.auth])
 
   if (isLoading) {
-    return null // or a loading spinner
+    return <div>Loading...</div>
   }
 
-  const data = {
-    ...navigationData,
-    navMain: navigationData[user.role].navMain,
+  const navigation = {
+    navMain: navigationData[user.role]?.navMain || [],
+    navSecondary: navigationData.navSecondary,
+    projects: navigationData.projects,
   }
-
-
 
   return (
-    <Sidebar
-      className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
-      {...props}
-    >
+    <Sidebar className="top-(--header-height) h-[calc(100svh-var(--header-height))]!">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex items-center justify-center p-2">
-                  <img src="/logo.png" alt="RE-24 Jobs" className="h-14 w-auto" />
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <NavUser user={user} onLogout={handleLogout} />
       </SidebarHeader>
       <SidebarContent>
-        <div className="px-4 py-2">
-          <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-          
-            
-          </div>
-        </div>
-        <NavMain items={data.navMain} />
-   
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navigation.navMain} />
+        <NavSecondary items={navigation.navSecondary} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} onLogout={handleLogout} />
+        <SidebarMenu>
+          {navigation.projects.map((project) => (
+            <SidebarMenuItem key={project.name}>
+              <SidebarMenuButton asChild>
+                <Link href={project.url}>
+                  {project.icon && <project.icon className="mr-2 h-4 w-4" />}
+                  {project.name}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )
