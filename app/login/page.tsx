@@ -1,24 +1,66 @@
 "use client"
 
 import { login } from "./action"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Mail, Lock, Loader2 } from "lucide-react"
+import { Mail, Lock, Loader2, AlertCircle } from "lucide-react"
 import { motion } from "framer-motion"
-import type React from "react" // Added import for React
+import type React from "react"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const error = searchParams.get('error')
+    if (error) {
+      let message = "Ein Fehler ist aufgetreten."
+      
+      switch(error) {
+        case 'no_user':
+          message = "Benutzer konnte nicht gefunden werden."
+          break
+        case 'no_profile':
+          message = "Benutzerprofil konnte nicht gefunden werden."
+          break
+        case 'invalid_role':
+          message = "Ungültige Benutzerrolle im Profil."
+          break
+        case 'unexpected_profile_error':
+          message = "Fehler beim Laden des Benutzerprofils."
+          break
+        case 'unexpected_error':
+          message = "Ein unerwarteter Fehler ist aufgetreten."
+          break
+        default:
+          if (error.startsWith('profile_')) {
+            message = "Profilfehler: " + error.substring(8)
+          } else {
+            message = error
+          }
+      }
+      
+      setErrorMessage(message)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setErrorMessage(null)
     const formData = new FormData(event.currentTarget)
     setIsLoading(true)
-    await login(formData)
-    setIsLoading(false)
+    try {
+      await login(formData)
+    } catch (error) {
+      console.error("Fehler beim Login:", error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -36,6 +78,14 @@ export default function LoginPage() {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-center text-white mb-8">Willkommen</h2>
+          
+          {errorMessage && (
+            <div className="bg-red-500/10 border border-red-500/20 rounded-md p-4 mb-6 flex items-start gap-3">
+              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+              <p className="text-red-100 text-sm">{errorMessage}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} method="post" className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium text-zinc-300">
