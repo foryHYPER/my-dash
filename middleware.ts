@@ -89,9 +89,78 @@ export async function middleware(request: NextRequest) {
 
       // Wenn auf einer öffentlichen Route und eingeloggt, zum Dashboard weiterleiten
       if (session && isPublicRoute(currentPath)) {
-        logDebug('Benutzer ist eingeloggt und auf öffentlicher Route - leite zu /dashboard weiter')
-        const redirectUrl = new URL('/dashboard', request.url)
-        return NextResponse.redirect(redirectUrl)
+        logDebug('Benutzer ist eingeloggt und auf öffentlicher Route - prüfe Benutzerrolle für spezifische Weiterleitung')
+        
+        try {
+          // Hole das Benutzerprofil mit der Rolle
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+            
+          if (profileError || !profile) {
+            logDebug('Konnte Benutzerrolle nicht abrufen, verwende generisches Dashboard')
+            const redirectUrl = new URL('/dashboard', request.url)
+            return NextResponse.redirect(redirectUrl)
+          }
+          
+          logDebug(`Benutzerrolle gefunden: ${profile.role}, leite entsprechend weiter`)
+          let dashboardPath = '/dashboard'
+          
+          if (profile.role === 'company') {
+            dashboardPath = '/dashboard/company'
+          } else if (profile.role === 'candidate') {
+            dashboardPath = '/dashboard/candidate'
+          } else if (profile.role === 'admin') {
+            dashboardPath = '/dashboard/admin'
+          }
+          
+          const redirectUrl = new URL(dashboardPath, request.url)
+          return NextResponse.redirect(redirectUrl)
+        } catch (profileError) {
+          logDebug('Fehler beim Abrufen des Profils, verwende generisches Dashboard', profileError)
+          const redirectUrl = new URL('/dashboard', request.url)
+          return NextResponse.redirect(redirectUrl)
+        }
+      }
+
+      // When already logged in and trying to access /dashboard directly, redirect to role-specific dashboard
+      if (session && currentPath === '/dashboard') {
+        logDebug('Benutzer ist eingeloggt und greift auf /dashboard zu - leite zu rollenspezifischem Dashboard weiter')
+        
+        try {
+          // Hole das Benutzerprofil mit der Rolle
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+            
+          if (profileError || !profile) {
+            logDebug('Konnte Benutzerrolle nicht abrufen, lasse generisches Dashboard die Weiterleitung übernehmen')
+            return response
+          }
+          
+          logDebug(`Benutzerrolle gefunden: ${profile.role}, leite entsprechend weiter`)
+          let dashboardPath = '/dashboard'
+          
+          if (profile.role === 'company') {
+            dashboardPath = '/dashboard/company'
+          } else if (profile.role === 'candidate') {
+            dashboardPath = '/dashboard/candidate'
+          } else if (profile.role === 'admin') {
+            dashboardPath = '/dashboard/admin'
+          }
+          
+          if (dashboardPath !== '/dashboard') {
+            const redirectUrl = new URL(dashboardPath, request.url)
+            return NextResponse.redirect(redirectUrl)
+          }
+        } catch (profileError) {
+          logDebug('Fehler beim Abrufen des Profils, lasse generisches Dashboard die Weiterleitung übernehmen', profileError)
+          return response
+        }
       }
 
       // Wenn nicht auf einer öffentlichen Route und nicht eingeloggt, zum Login weiterleiten
