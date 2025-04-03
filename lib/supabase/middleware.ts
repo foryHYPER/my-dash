@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { AuthError } from '@supabase/supabase-js';
 
 export async function updateSession(request: NextRequest) {
   // API-Routen überspringen
@@ -18,10 +19,10 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+          cookiesToSet.forEach(({ name, value, options: cookieOptions }) =>
+            supabaseResponse.cookies.set(name, value, cookieOptions)
           );
         },
       },
@@ -32,8 +33,8 @@ export async function updateSession(request: NextRequest) {
   try {
     const { data } = await supabase.auth.getUser();
     user = data.user;
-  } catch (error: any) {
-    if (error.code !== 'refresh_token_not_found') {
+  } catch (error: unknown) {
+    if (error instanceof AuthError && error.code !== 'refresh_token_not_found') {
       console.error('Unexpected error during token refresh:', error);
     }
     // Bei 'refresh_token_not_found' einfach den Fehler ignorieren
