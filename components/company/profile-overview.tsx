@@ -1,12 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Edit, Mail, Phone, MapPin, Building2, Users, Globe, Briefcase } from "lucide-react"
+import { Mail, Phone, MapPin, Building2, Users, Globe, Briefcase } from "lucide-react"
 
 // Mock-Daten
 const mockCompany = {

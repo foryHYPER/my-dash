@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  Command,
   Frame,
   LifeBuoy,
   Map,
@@ -198,26 +197,6 @@ const navigationData = {
   ],
 }
 
-const routeTranslations: Record<string, string> = {
-  dashboard: "Dashboard",
-  overview: "Übersicht",
-  applications: "Bewerbungen",
-  "saved-jobs": "Gespeicherte Jobs",
-  profile: "Profil",
-  "personal-info": "Persönliche Daten",
-  skills: "Fähigkeiten",
-  experience: "Erfahrung",
-  education: "Ausbildung",
-  "active-jobs": "Aktive Jobs",
-  "post-job": "Neuen Job erstellen",
-  "manage-jobs": "Jobs verwalten",
-  candidates: "Kandidaten",
-  company: "Unternehmen",
-  team: "Team",
-  settings: "Einstellungen",
-  support: "Support",
-  feedback: "Feedback",
-}
 
 
 
@@ -234,7 +213,6 @@ export function AppSidebar({ user: initialUser, ...props }: AppSidebarProps & Re
   const [user, setUser] = React.useState(initialUser)
   const [isLoading, setIsLoading] = React.useState(true)
   const router = useRouter()
-  const pathname = usePathname()
   const supabase = createClient()
 
   const handleLogout = async () => {

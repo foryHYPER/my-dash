@@ -13,20 +13,27 @@ export async function createClient() {
       },
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          try {
+            return cookieStore.get(name)?.value
+          } catch (error) {
+            console.error('Error getting cookie:', error)
+            return null
+          }
         },
         set(name: string, value: string, options: any) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
-            // Handle cookie errors
+            console.error('Error setting cookie:', error)
+            throw new Error(`Failed to set cookie: ${error instanceof Error ? error.message : 'Unknown error'}`)
           }
         },
         remove(name: string, options: any) {
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {
-            // Handle cookie errors
+            console.error('Error removing cookie:', error)
+            throw new Error(`Failed to remove cookie: ${error instanceof Error ? error.message : 'Unknown error'}`)
           }
         },
       },

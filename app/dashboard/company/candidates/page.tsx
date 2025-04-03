@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, Filter, CheckCircle2, XCircle } from "lucide-react"
+import { Search, CheckCircle2, XCircle } from "lucide-react"
 import { DashboardContent } from "@/components/layout/dashboard-content"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"

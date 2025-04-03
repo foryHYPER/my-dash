@@ -1,12 +1,12 @@
 "use client"
 
-import { Search, Plus, Edit2, Trash2, Building2, Clock, Euro, MapPin } from "lucide-react"
+import { Search, Edit2, Trash2, Building2, Clock, Euro, MapPin } from "lucide-react"
 import { DashboardContent } from "@/components/layout/dashboard-content"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 
@@ -74,6 +74,39 @@ export default function JobsPage() {
   const [selectedLocation, setSelectedLocation] = useState<string>("all")
   const [jobs, setJobs] = useState(mockJobs)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleCreateJob = () => {
+    try {
+      const newJob = {
+        id: jobs.length + 1,
+        title: "New Job",
+        department: "Engineering",
+        type: "Full-time",
+        location: "Berlin",
+        salary: "60.000€ - 80.000€",
+        status: "draft",
+        applications: 0,
+        description: "",
+        requirements: [],
+        postedAt: new Date().toISOString().split('T')[0]
+      }
+      setJobs([...jobs, newJob])
+      setIsCreateDialogOpen(false)
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create job")
+    }
+  }
+
+  const handleDeleteJob = (id: number) => {
+    try {
+      setJobs(jobs.filter(job => job.id !== id))
+      setError(null)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete job")
+    }
+  }
 
   const filteredJobs = jobs.filter(job => {
     const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -167,7 +200,7 @@ export default function JobsPage() {
                     <Button variant="ghost" size="icon">
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => handleDeleteJob(job.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -180,6 +213,11 @@ export default function JobsPage() {
 
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-[600px]">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
           <DialogHeader>
             <DialogTitle>Create New Job Posting</DialogTitle>
             <DialogDescription>
@@ -226,7 +264,7 @@ export default function JobsPage() {
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={() => setIsCreateDialogOpen(false)}>
+            <Button onClick={handleCreateJob}>
               Create Job
             </Button>
           </DialogFooter>
