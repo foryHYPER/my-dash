@@ -7,7 +7,9 @@ const nextConfig = {
   },
   // Other Next.js configurations
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ["localhost:3000"],
+    },
   },
   images: {
     domains: ['uzthbqcqitljcymiohwe.supabase.co'],
