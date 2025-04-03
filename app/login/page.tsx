@@ -19,34 +19,45 @@ function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.Form
 
   useEffect(() => {
     const error = searchParams.get('error')
+    const message = searchParams.get('message')
+    
     if (error) {
-      let message = "Ein Fehler ist aufgetreten."
+      console.log("Error param detected:", error, "Message:", message);
+      let displayMessage = "Ein Fehler ist aufgetreten."
       
       switch(error) {
         case 'no_user':
-          message = "Benutzer konnte nicht gefunden werden."
+          displayMessage = "Benutzer konnte nicht gefunden werden."
           break
         case 'no_profile':
-          message = "Benutzerprofil konnte nicht gefunden werden."
+          displayMessage = "Benutzerprofil konnte nicht gefunden werden."
           break
         case 'invalid_role':
-          message = "Ungültige Benutzerrolle im Profil."
+          displayMessage = "Ungültige Benutzerrolle im Profil."
           break
-        case 'unexpected_profile_error':
-          message = "Fehler beim Laden des Benutzerprofils."
+        case 'profile_error':
+          displayMessage = "Fehler beim Laden des Benutzerprofils: " + (message || "")
+          break
+        case 'auth_error':
+          displayMessage = "Authentifizierungsfehler: " + (message || "")
           break
         case 'unexpected_error':
-          message = "Ein unerwarteter Fehler ist aufgetreten."
+          displayMessage = "Ein unerwarteter Fehler ist aufgetreten: " + (message || "")
           break
         default:
           if (error.startsWith('profile_')) {
-            message = "Profilfehler: " + error.substring(8)
+            displayMessage = "Profilfehler: " + error.substring(8)
+          } else if (error.startsWith('auth_')) {
+            displayMessage = "Anmeldefehler: " + error.substring(5)
+          } else if (message) {
+            displayMessage = `${error}: ${message}`
           } else {
-            message = error
+            displayMessage = error
           }
       }
       
-      setErrorMessage(message)
+      console.log("Setting error message:", displayMessage);
+      setErrorMessage(displayMessage)
     }
   }, [searchParams])
 
