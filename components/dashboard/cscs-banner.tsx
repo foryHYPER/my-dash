@@ -18,40 +18,46 @@ export function CSCSBanner() {
         return {
           title: "Dein Profil",
           description: "Vervollständige dein Profil, um mehr Kandidaten zu finden.",
-          buttonText: "Profil bearbeiten"
+          buttonText: "Profil bearbeiten",
+          action: () => console.log("Profil bearbeiten clicked")
         }
       case "/dashboard/candidate":
         return {
           title: "Dein Profil",
           description: "Vervollständige dein Profil, um deine Chancen zu erhöhen.",
-          buttonText: "Profil bearbeiten"
+          buttonText: "Profil bearbeiten",
+          action: () => console.log("Kandidatenprofil bearbeiten clicked")
         }
 
         case "/dashboard/candidate/interviews":
         return {
           title: "Deine Termine",
           description: "Hier kannst du deine Termine sehen und verwalten.",
-          buttonText: "Termin erstellen"
+          buttonText: "Termin erstellen",
+          action: () => console.log("Termin erstellen clicked")
         }
 
         case "/dashboard/candidate/profile":
           return {
             title: "Dein Profil",
             description: "Vervollständige dein Profil, um deine Chancen zu erhöhen.",
-            buttonText: "Profil bearbeiten"
+            buttonText: "Profil bearbeiten",
+            action: () => console.log("Kandidatenprofil bearbeiten clicked")
           }
 
       case "/dashboard/company":
         return {
           title: "Dashboard",
           description: "Willkommen in Ihrem Dashboard, starten Sie heute.",
-          buttonText: "Kandidaten finden"
+          buttonText: "Kandidaten finden",
+          action: () => console.log("Kandidaten finden clicked")
         }
       case "/dashboard/company/candidates":
         return {
           title: "Kandidatenübersicht",
           description: "Hier können Sie Kandidaten finden und verwalten.",
-          buttonText: "Übersicht"
+          buttonText: "Übersicht",
+          action: () => console.log("Kandidatenübersicht clicked")
         }
       case "/dashboard/company/jobs":
         return {
@@ -72,12 +78,21 @@ export function CSCSBanner() {
         return {
           title: "Welcome",
           description: "Welcome to your dashboard, get started today.",
-          buttonText: "Get started"
+          buttonText: "Get started",
+          action: () => console.log("Default action clicked")
         }
     }
   }
 
   const content = getBannerContent()
+
+  const handleButtonClick = () => {
+    if (typeof content.action === 'function') {
+      content.action();
+    } else {
+      console.log(`Action clicked for ${pathname}`);
+    }
+  }
 
   return (
     <>
@@ -92,7 +107,7 @@ export function CSCSBanner() {
           </div>
         </div>
         <button 
-          onClick={content.action} 
+          onClick={handleButtonClick} 
           className="bg-white hover:bg-white/90 text-gray-900 px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:shadow-md active:scale-95"
         >
           {content.buttonText}
