@@ -1,7 +1,6 @@
 "use client"
 
 import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
-import { DashboardContent } from "@/components/layout/dashboard-content"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -82,7 +81,6 @@ function InterviewsContent({ companyId }: { companyId: string }) {
   const interviews = mockCompanyInterviews(companyId).interviews
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
-  const router = useRouter()
 
   const filteredInterviews = interviews.filter(interview => {
     const matchesSearch = interview.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -272,7 +270,6 @@ function InterviewsContent({ companyId }: { companyId: string }) {
 export default function CompanyInterviewsPage({ params, searchParams }: PageProps) {
   try {
     const resolvedParams = use(params)
-    const resolvedSearchParams = searchParams ? use(searchParams) : {}
 
     return (
       <Suspense fallback={<div>Loading...</div>}>
