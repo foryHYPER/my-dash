@@ -12,7 +12,7 @@ import Image from "next/image"
 import { useSearchParams, useRouter } from "next/navigation"
 
 // Create a separate component that uses useSearchParams
-function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<any> }) {
+function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<{ success: boolean; error?: string; redirectPath?: string; } | undefined> }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
