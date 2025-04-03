@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 // Define a custom error type for better error handling
-type AppError = Error | { message?: string; [key: string]: any }
+type AppError = Error | { message?: string; [key: string]: unknown }
 
 export async function login(formData: FormData) {
   try {
