@@ -22,6 +22,13 @@ interface Interview {
   notes: string
 }
 
+interface PageProps {
+  params: {
+    companyId: string
+  }
+  searchParams?: { [key: string]: string | string[] | undefined }
+}
+
 // Mock data for company interviews
 const mockCompanyInterviews = (companyId: string) => ({
   company: {
@@ -63,7 +70,7 @@ const mockCompanyInterviews = (companyId: string) => ({
   ] as Interview[]
 })
 
-export default function CompanyInterviewsPage({ params }: { params: { companyId: string } }) {
+export default function CompanyInterviewsPage({ params }: PageProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
