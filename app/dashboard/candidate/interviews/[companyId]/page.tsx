@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge"
 import { useState, use, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+
 
 interface Interview {
   id: number
@@ -267,7 +267,7 @@ function InterviewsContent({ companyId }: { companyId: string }) {
   )
 }
 
-export default function CompanyInterviewsPage({ params, searchParams }: PageProps) {
+export default function CompanyInterviewsPage({ params }: PageProps) {
   try {
     const resolvedParams = use(params)
 
