@@ -8,13 +8,53 @@ export async function createClient() {
     // cookies() muss asynchron verwendet werden in Next.js 15
     const cookieStore = await cookies()
     
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      throw new Error('Supabase Umgebungsvariablen sind nicht konfiguriert')
+    // Debug-Ausgabe für Umgebungsvariablen
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    
+    console.log("Environment Vars Check:");
+    console.log("- NEXT_PUBLIC_SUPABASE_URL:", supabaseUrl ? "Vorhanden" : "Fehlt");
+    console.log("- NEXT_PUBLIC_SUPABASE_ANON_KEY:", supabaseKey ? "Vorhanden" : "Fehlt");
+    
+    // Prüfen der Umgebungsvariablen
+    if (!supabaseUrl || !supabaseKey) {
+      // Versuche direkten Zugriff auf .env Werte als Fallback (nur für Entwicklung)
+      const fallbackUrl = "https://uzthbqcqitljcymiohwe.supabase.co";
+      const fallbackKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6dGhicWNxaXRsamN5bWlvaHdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMyNzk2MzYsImV4cCI6MjA1ODg1NTYzNn0.y_EzraG-VTirim57R1Qbo_jLdWAWHoNwucoy7Oxy4E8";
+      
+      console.log("Verwende Fallback-Werte für Supabase-Verbindung");
+      
+      return createServerClient(
+        fallbackUrl,
+        fallbackKey,
+        {
+          cookies: {
+            getAll: () => {
+              try {
+                return cookieStore.getAll().map(cookie => ({
+                  name: cookie.name,
+                  value: cookie.value,
+                }))
+              } catch (error) {
+                console.error('Fehler beim Abrufen von Cookies:', error)
+                return []
+              }
+            },
+            setAll: (cookies) => {
+              try {
+                cookies.forEach(cookie => cookieStore.set(cookie.name, cookie.value, cookie.options))
+              } catch (error) {
+                console.error('Fehler beim Setzen von Cookies:', error)
+              }
+            }
+          }
+        }
+      )
     }
     
     return createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      supabaseUrl,
+      supabaseKey,
       {
         cookies: {
           getAll: () => {
