@@ -26,9 +26,11 @@ type Params = Promise<{
   companyId: string
 }>
 
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+
 interface PageProps {
   params: Params
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: SearchParams
 }
 
 // Mock data for company interviews
@@ -72,8 +74,9 @@ const mockCompanyInterviews = (companyId: string) => ({
   ] as Interview[]
 })
 
-export default function CompanyInterviewsPage({ params }: PageProps) {
+export default function CompanyInterviewsPage({ params, searchParams }: PageProps) {
   const resolvedParams = use(params)
+  const resolvedSearchParams = searchParams ? use(searchParams) : {}
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
