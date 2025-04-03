@@ -1,3 +1,5 @@
+"use client"
+
 import { 
   FileText,  
   CheckCircle2, 
@@ -6,10 +8,28 @@ import {
 } from "lucide-react"
 import { KPICard } from "@/components/dashboard/kpi-card"
 import { DashboardContent } from "@/components/layout/dashboard-content"
+import { Suspense } from "react"
 
-export default function CandidateDashboard() {
+function DashboardSkeleton() {
   return (
-    <DashboardContent>
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-32 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"></div>
+        ))}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"></div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CandidateDashboardContent() {
+  return (
+    <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard
           title="Gesendete Bewerbungen"
@@ -82,6 +102,16 @@ export default function CandidateDashboard() {
           </div>
         </div>
       </div>
+    </>
+  )
+}
+
+export default function CandidateDashboard() {
+  return (
+    <DashboardContent>
+      <Suspense fallback={<DashboardSkeleton />}>
+        <CandidateDashboardContent />
+      </Suspense>
     </DashboardContent>
   )
 } 

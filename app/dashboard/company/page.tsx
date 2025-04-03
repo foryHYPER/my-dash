@@ -1,3 +1,5 @@
+"use client"
+
 import { 
   Briefcase, 
   Users,  
@@ -6,11 +8,28 @@ import {
 } from "lucide-react"
 import { KPICard } from "@/components/dashboard/kpi-card"
 import { DashboardContent } from "@/components/layout/dashboard-content"
+import { Suspense } from "react"
 
-export default function CompanyDashboard() {
+function DashboardSkeleton() {
   return (
-    <DashboardContent>
-      
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-32 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"></div>
+        ))}
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="h-64 bg-zinc-100 dark:bg-zinc-800 rounded-xl animate-pulse"></div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CompanyDashboardContent() {
+  return (
+    <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <KPICard
           title="Active Job Listings"
@@ -85,6 +104,16 @@ export default function CompanyDashboard() {
           </div>
         </div>
       </div>
+    </>
+  )
+}
+
+export default function CompanyDashboard() {
+  return (
+    <DashboardContent>
+      <Suspense fallback={<DashboardSkeleton />}>
+        <CompanyDashboardContent />
+      </Suspense>
     </DashboardContent>
   )
 } 
