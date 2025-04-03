@@ -1,7 +1,7 @@
 "use client"
 
 import { login } from "./action"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -11,9 +11,10 @@ import type React from "react"
 import Image from "next/image"
 import { useSearchParams } from "next/navigation"
 
-export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false)
+// Create a separate component that uses useSearchParams
+function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void> }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -52,15 +53,98 @@ export default function LoginPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setErrorMessage(null)
-    const formData = new FormData(event.currentTarget)
     setIsLoading(true)
     try {
-      await login(formData)
+      await onSubmit(event)
     } catch (error) {
       console.error("Fehler beim Login:", error)
     } finally {
       setIsLoading(false)
     }
+  }
+
+  return (
+    <>
+      {errorMessage && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-md p-4 mb-6 flex items-start gap-3">
+          <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
+          <p className="text-red-100 text-sm">{errorMessage}</p>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} method="post" className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium text-zinc-300">
+            E-Mail
+          </Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={20} />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              className="pl-10 pr-4 py-2 w-full bg-zinc-800 border-zinc-700 text-white focus:ring-0 focus:ring-offset-0 focus:outline-none focus:border-blue-500"
+              placeholder="E-Mail-Adresse eingeben"
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-sm font-medium text-zinc-300">
+            Passwort
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={20} />
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="pl-10 pr-4 py-2 w-full bg-zinc-800 border-zinc-700 text-white focus:ring-0 focus:ring-offset-0 focus:outline-none focus:border-blue-500"
+              placeholder="Passwort eingeben"
+            />
+          </div>
+        </div>
+        <Button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Anmelden...
+            </>
+          ) : (
+            "Anmelden"
+          )}
+        </Button>
+      </form>
+    </>
+  )
+}
+
+// Loading fallback for Suspense
+function LoginFormLoading() {
+  return (
+    <div className="space-y-6">
+      <div className="animate-pulse space-y-2">
+        <div className="h-5 w-20 bg-zinc-700 rounded"></div>
+        <div className="h-10 bg-zinc-700 rounded"></div>
+      </div>
+      <div className="animate-pulse space-y-2">
+        <div className="h-5 w-20 bg-zinc-700 rounded"></div>
+        <div className="h-10 bg-zinc-700 rounded"></div>
+      </div>
+      <div className="h-10 bg-zinc-700 rounded animate-pulse"></div>
+    </div>
+  )
+}
+
+export default function LoginPage() {
+  const handleLoginSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(event.currentTarget)
+    await login(formData)
   }
 
   return (
@@ -79,61 +163,10 @@ export default function LoginPage() {
           </div>
           <h2 className="text-3xl font-bold text-center text-white mb-8">Willkommen</h2>
           
-          {errorMessage && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-md p-4 mb-6 flex items-start gap-3">
-              <AlertCircle className="text-red-500 shrink-0 mt-0.5" size={18} />
-              <p className="text-red-100 text-sm">{errorMessage}</p>
-            </div>
-          )}
+          <Suspense fallback={<LoginFormLoading />}>
+            <LoginFormWithErrorHandling onSubmit={handleLoginSubmit} />
+          </Suspense>
           
-          <form onSubmit={handleSubmit} method="post" className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-zinc-300">
-                E-Mail
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={20} />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="pl-10 pr-4 py-2 w-full bg-zinc-800 border-zinc-700 text-white focus:ring-0 focus:ring-offset-0 focus:outline-none focus:border-blue-500"
-                  placeholder="E-Mail-Adresse eingeben"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-zinc-300">
-                Passwort
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={20} />
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="pl-10 pr-4 py-2 w-full bg-zinc-800 border-zinc-700 text-white focus:ring-0 focus:ring-offset-0 focus:outline-none focus:border-blue-500"
-                  placeholder="Passwort eingeben"
-                />
-              </div>
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:ring-0 focus:ring-offset-0 focus:outline-none"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Anmelden...
-                </>
-              ) : (
-                "Anmelden"
-              )}
-            </Button>
-          </form>
           <div className="mt-6 text-center">
             <a href="#" className="text-sm text-blue-500 hover:text-blue-400">
               Passwort vergessen?
