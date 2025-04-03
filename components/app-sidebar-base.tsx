@@ -14,7 +14,7 @@ import {
   Building2,
   Calendar,
 } from "lucide-react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 

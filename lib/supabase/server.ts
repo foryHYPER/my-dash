@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export async function createClient() {
@@ -20,7 +20,7 @@ export async function createClient() {
             return null
           }
         },
-        set(name: string, value: string, options: any) {
+        set(name: string, value: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options })
           } catch (error) {
@@ -28,7 +28,7 @@ export async function createClient() {
             throw new Error(`Failed to set cookie: ${error instanceof Error ? error.message : 'Unknown error'}`)
           }
         },
-        remove(name: string, options: any) {
+        remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options })
           } catch (error) {

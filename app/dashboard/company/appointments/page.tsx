@@ -10,8 +10,21 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 
+interface Appointment {
+  id: number
+  candidateName: string
+  position: string
+  date: string
+  time: string
+  type: 'video' | 'phone' | 'in-person'
+  status: 'confirmed' | 'pending' | 'cancelled'
+  duration: string
+  location: string
+  notes: string
+}
+
 // Mock data for appointments
-const mockAppointments = [
+const mockAppointments: Appointment[] = [
   {
     id: 1,
     candidateName: "Max Mustermann",
@@ -55,7 +68,7 @@ export default function AppointmentsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
   const appointments = mockAppointments
-  const [selectedAppointment, setSelectedAppointment] = useState<any>(null)
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
 
   const filteredAppointments = appointments.filter(appointment => {

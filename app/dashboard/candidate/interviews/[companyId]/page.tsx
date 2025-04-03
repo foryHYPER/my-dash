@@ -11,6 +11,17 @@ import { Badge } from "@/components/ui/badge"
 import { useState } from "react"
 import Link from "next/link"
 
+interface Interview {
+  id: number
+  date: string
+  time: string
+  type: 'video' | 'phone' | 'in-person'
+  status: 'pending' | 'accepted' | 'suggested'
+  duration: string
+  location: string
+  notes: string
+}
+
 // Mock data for company interviews
 const mockCompanyInterviews = (companyId: string) => ({
   company: {
@@ -23,8 +34,8 @@ const mockCompanyInterviews = (companyId: string) => ({
       id: 1,
       date: "2024-03-25",
       time: "10:00",
-      type: "video",
-      status: "pending",
+      type: "video" as const,
+      status: "pending" as const,
       duration: "60 min",
       location: "Online",
       notes: "Technical interview focusing on React and TypeScript"
@@ -33,8 +44,8 @@ const mockCompanyInterviews = (companyId: string) => ({
       id: 2,
       date: "2024-03-28",
       time: "14:00",
-      type: "in-person",
-      status: "accepted",
+      type: "in-person" as const,
+      status: "accepted" as const,
       duration: "45 min",
       location: "Office Berlin",
       notes: "Final interview with team"
@@ -43,13 +54,13 @@ const mockCompanyInterviews = (companyId: string) => ({
       id: 3,
       date: "2024-03-30",
       time: "11:00",
-      type: "video",
-      status: "suggested",
+      type: "video" as const,
+      status: "suggested" as const,
       duration: "30 min",
       location: "Online",
       notes: "Initial screening interview"
     }
-  ]
+  ] as Interview[]
 })
 
 export default function CompanyInterviewsPage({ params }: { params: { companyId: string } }) {
@@ -57,7 +68,7 @@ export default function CompanyInterviewsPage({ params }: { params: { companyId:
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
   const interviews = mockCompanyInterviews(params.companyId).interviews
-  const [selectedInterview, setSelectedInterview] = useState<any>(null)
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
 
   const filteredInterviews = interviews.filter(interview => {
