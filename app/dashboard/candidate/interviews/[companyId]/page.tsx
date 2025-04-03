@@ -1,5 +1,15 @@
 'use client'
+
 import { Suspense } from "react"
+import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { useState } from "react"
+import Link from "next/link"
 
 // Interface für Interview
 interface Interview {
@@ -53,31 +63,6 @@ const mockCompanyInterviews = (companyId: string) => ({
     }
   ] as Interview[]
 })
-
-// Server-Komponente für die Seite
-export default function CompanyInterviewsPage({
-  params,
-}: {
-  params: { companyId: string }
-}) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <InterviewsClientContent companyId={params.companyId} />
-    </Suspense>
-  )
-}
-
-// Client-Komponente für die interaktiven Teile
-"use client"
-import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
-import Link from "next/link"
 
 function InterviewsClientContent({ companyId }: { companyId: string }) {
   const [searchTerm, setSearchTerm] = useState("")
@@ -269,5 +254,17 @@ function InterviewsClientContent({ companyId }: { companyId: string }) {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function CompanyInterviewsPage({
+  params,
+}: {
+  params: { companyId: string }
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InterviewsClientContent companyId={params.companyId} />
+    </Suspense>
   )
 } 
