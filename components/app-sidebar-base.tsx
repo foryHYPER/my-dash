@@ -255,8 +255,10 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
     }
   }
 
+  const validRole = user.role === 'candidate' || user.role === 'company' ? user.role : 'candidate'
+
   const navigation = {
-    navMain: navigationData[user.role]?.navMain || [],
+    navMain: navigationData[validRole]?.navMain || [],
     navSecondary: navigationData.navSecondary,
     projects: navigationData.projects,
   }
@@ -280,7 +282,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">RE24 JOBS</span>
-                  <span className="truncate text-xs">{user.role}</span>
+                  <span className="truncate text-xs">{validRole}</span>
                 </div>
               </a>
             </SidebarMenuButton>
