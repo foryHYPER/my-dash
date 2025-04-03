@@ -2,15 +2,17 @@
 import { Suspense } from "react"
 import InterviewsClientContent from "./client-component"
 
+// Definiere den Typ für die Parameter als Promise
+export type CompanyParamsType = Promise<{ companyId: string }>;
+
 // Server component that handles dynamic routes
-export default function CompanyInterviewsPage({
-  params,
-}: {
-  params: { companyId: string }
-}) {
+export default async function CompanyInterviewsPage({ params }: { params: CompanyParamsType }) {
+  // Hole die Parameter mit await
+  const { companyId } = await params;
+  
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <InterviewsClientContent companyId={params.companyId} />
+      <InterviewsClientContent companyId={companyId} />
     </Suspense>
-  )
+  );
 } 
