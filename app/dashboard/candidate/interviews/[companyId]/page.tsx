@@ -8,8 +8,9 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { useState, use } from "react"
+import { useState, use, Suspense } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 interface Interview {
   id: number
@@ -74,14 +75,14 @@ const mockCompanyInterviews = (companyId: string) => ({
   ] as Interview[]
 })
 
-export default function CompanyInterviewsPage({ params }: PageProps) {
-  const resolvedParams = use(params)
+function InterviewsContent({ companyId }: { companyId: string }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
-  const interviews = mockCompanyInterviews(resolvedParams.companyId).interviews
+  const interviews = mockCompanyInterviews(companyId).interviews
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
+  const router = useRouter()
 
   const filteredInterviews = interviews.filter(interview => {
     const matchesSearch = interview.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -116,97 +117,95 @@ export default function CompanyInterviewsPage({ params }: PageProps) {
   }
 
   return (
-    <DashboardContent>
-      <div className="flex flex-col gap-6 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard/candidate/interviews">
-              <Button variant="ghost" size="icon">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold">{mockCompanyInterviews(resolvedParams.companyId).company.name}</h1>
-              <p className="text-sm text-muted-foreground">{mockCompanyInterviews(resolvedParams.companyId).company.position}</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Termine durchsuchen..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status filtern" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Status</SelectItem>
-                <SelectItem value="accepted">Bestätigt</SelectItem>
-                <SelectItem value="pending">Ausstehend</SelectItem>
-                <SelectItem value="suggested">Vorgeschlagen</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Typ filtern" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle Typen</SelectItem>
-                <SelectItem value="video">Video Call</SelectItem>
-                <SelectItem value="phone">Telefon</SelectItem>
-                <SelectItem value="in-person">Vor Ort</SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="flex flex-col gap-6 py-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard/candidate/interviews">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold">{mockCompanyInterviews(companyId).company.name}</h1>
+            <p className="text-sm text-muted-foreground">{mockCompanyInterviews(companyId).company.position}</p>
           </div>
         </div>
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Termine durchsuchen..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Status filtern" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle Status</SelectItem>
+              <SelectItem value="accepted">Bestätigt</SelectItem>
+              <SelectItem value="pending">Ausstehend</SelectItem>
+              <SelectItem value="suggested">Vorgeschlagen</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={selectedType} onValueChange={setSelectedType}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Typ filtern" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle Typen</SelectItem>
+              <SelectItem value="video">Video Call</SelectItem>
+              <SelectItem value="phone">Telefon</SelectItem>
+              <SelectItem value="in-person">Vor Ort</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-        <div className="grid gap-4">
-          {filteredInterviews.map((interview) => (
-            <Card 
-              key={interview.id} 
-              className="p-6 cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => {
-                setSelectedInterview(interview)
-                setIsDetailsDialogOpen(true)
-              }}
-            >
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold">Vorstellungsgespräch</h3>
-                    <p className="text-sm text-muted-foreground">{interview.type === "video" ? "Video Call" : 
-                      interview.type === "phone" ? "Telefon" : "Vor Ort"}</p>
-                  </div>
-                  <Badge className={getStatusColor(interview.status)}>
-                    {interview.status === "accepted" ? "Bestätigt" :
-                     interview.status === "pending" ? "Ausstehend" :
-                     "Vorgeschlagen"}
-                  </Badge>
+      <div className="grid gap-4">
+        {filteredInterviews.map((interview) => (
+          <Card 
+            key={interview.id} 
+            className="p-6 cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => {
+              setSelectedInterview(interview)
+              setIsDetailsDialogOpen(true)
+            }}
+          >
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold">Vorstellungsgespräch</h3>
+                  <p className="text-sm text-muted-foreground">{interview.type === "video" ? "Video Call" : 
+                    interview.type === "phone" ? "Telefon" : "Vor Ort"}</p>
                 </div>
-                
-                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(interview.date).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>{interview.time} ({interview.duration})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getTypeIcon(interview.type)}
-                    <span>{interview.location}</span>
-                  </div>
+                <Badge className={getStatusColor(interview.status)}>
+                  {interview.status === "accepted" ? "Bestätigt" :
+                   interview.status === "pending" ? "Ausstehend" :
+                   "Vorgeschlagen"}
+                </Badge>
+              </div>
+              
+              <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>{new Date(interview.date).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{interview.time} ({interview.duration})</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {getTypeIcon(interview.type)}
+                  <span>{interview.location}</span>
                 </div>
               </div>
-            </Card>
-          ))}
-        </div>
+            </div>
+          </Card>
+        ))}
       </div>
 
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
@@ -266,6 +265,22 @@ export default function CompanyInterviewsPage({ params }: PageProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardContent>
+    </div>
   )
+}
+
+export default function CompanyInterviewsPage({ params, searchParams }: PageProps) {
+  try {
+    const resolvedParams = use(params)
+    const resolvedSearchParams = searchParams ? use(searchParams) : {}
+
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <InterviewsContent companyId={resolvedParams.companyId} />
+      </Suspense>
+    )
+  } catch (error) {
+    console.error('Error in CompanyInterviewsPage:', error)
+    return <div>Something went wrong. Please try again later.</div>
+  }
 } 
