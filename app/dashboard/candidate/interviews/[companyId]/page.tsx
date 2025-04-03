@@ -1,16 +1,6 @@
-"use client"
+import { Suspense } from "react"
 
-import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { useState, Suspense } from "react"
-import Link from "next/link"
-
-
+// Interface für Interview
 interface Interview {
   id: number
   date: string
@@ -22,11 +12,7 @@ interface Interview {
   notes: string
 }
 
-interface PageParams {
-  companyId: string
-}
-
-// Mock data for company interviews
+// Mock data für Interviews
 const mockCompanyInterviews = (companyId: string) => ({
   company: {
     id: parseInt(companyId),
@@ -67,7 +53,32 @@ const mockCompanyInterviews = (companyId: string) => ({
   ] as Interview[]
 })
 
-function InterviewsContent({ companyId }: { companyId: string }) {
+// Server-Komponente für die Seite
+export default function CompanyInterviewsPage({
+  params,
+}: {
+  params: { companyId: string }
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InterviewsClientContent companyId={params.companyId} />
+    </Suspense>
+  )
+}
+
+// Client-Komponente für die interaktiven Teile
+"use client"
+import { Search, Calendar, Clock, Building2, Video, Phone, CheckCircle2, XCircle, ArrowLeft } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Badge } from "@/components/ui/badge"
+import { useState } from "react"
+import Link from "next/link"
+
+function InterviewsClientContent({ companyId }: { companyId: string }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
@@ -257,18 +268,5 @@ function InterviewsContent({ companyId }: { companyId: string }) {
         </DialogContent>
       </Dialog>
     </div>
-  )
-}
-
-export default function CompanyInterviewsPage({
-  params,
-}: {
-  params: PageParams
-  searchParams?: { [key: string]: string | string[] | undefined }
-}) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <InterviewsContent companyId={params.companyId} />
-    </Suspense>
   )
 } 
