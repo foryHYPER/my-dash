@@ -74,9 +74,8 @@ const mockCompanyInterviews = (companyId: string) => ({
   ] as Interview[]
 })
 
-export default function CompanyInterviewsPage({ params, searchParams }: PageProps) {
+export default function CompanyInterviewsPage({ params }: PageProps) {
   const resolvedParams = use(params)
-  const resolvedSearchParams = searchParams ? use(searchParams) : {}
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
