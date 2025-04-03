@@ -2,11 +2,11 @@
 
 import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 
 export type AuthResult = {
   success: boolean
   error?: string
+  redirectPath?: string
 }
 
 interface LoginData {
@@ -62,16 +62,18 @@ export async function login(data: LoginData): Promise<AuthResult> {
       maxAge: 60 * 60 * 24 * 7 // 1 Woche
     })
 
-    // Leite den Benutzer basierend auf seiner Rolle weiter
+    // Generate redirect path based on role
     const redirectPath = profile.role === 'admin' 
       ? '/dashboard/admin'
       : profile.role === 'company'
       ? '/dashboard/company'
       : '/dashboard/candidate'
     
-    redirect(redirectPath)
-
-    return { success: true }
+    // Return success and the redirect path
+    return { 
+      success: true,
+      redirectPath: redirectPath
+    }
   } catch (error) {
     console.error('Login error:', error)
     return { 

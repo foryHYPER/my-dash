@@ -9,13 +9,14 @@ import { Mail, Lock, Loader2, AlertCircle } from "lucide-react"
 import { motion } from "framer-motion"
 import type React from "react"
 import Image from "next/image"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 
 // Create a separate component that uses useSearchParams
-function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void> }) {
+function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<any> }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     const error = searchParams.get('error')
@@ -66,17 +67,19 @@ function LoginFormWithErrorHandling({ onSubmit }: { onSubmit: (event: React.Form
     setErrorMessage(null)
     setIsLoading(true)
     try {
-      await onSubmit(event)
-    } catch (error) {
-      // Check if this is a Next.js redirect "error" (not a real error)
-      // NEXT_REDIRECT errors are expected when redirect() is called in a server action
-      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
-        // This is not an error, but Next.js's way of handling redirects
-        console.log("Redirecting after login...")
-      } else {
-        console.error("Fehler beim Login:", error)
-        setErrorMessage("Ein Fehler ist beim Login aufgetreten. Bitte versuchen Sie es erneut.")
+      const result = await onSubmit(event)
+      
+      // Check if we have a redirect path from the login function
+      if (result && result.redirectPath) {
+        // Use client-side navigation instead of letting the server redirect
+        router.push(result.redirectPath)
+      } else if (result && !result.success && result.error) {
+        // Handle error returned from the login function
+        setErrorMessage(result.error)
       }
+    } catch (error) {
+      console.error("Fehler beim Login:", error)
+      setErrorMessage("Ein Fehler ist beim Login aufgetreten. Bitte versuchen Sie es erneut.")
     } finally {
       setIsLoading(false)
     }
@@ -163,7 +166,7 @@ function LoginFormLoading() {
 export default function LoginPage() {
   const handleLoginSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(event.currentTarget)
-    await login(formData)
+    return await login(formData)
   }
 
   return (
