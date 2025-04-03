@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { useState, Suspense, use } from "react"
+import { useState, Suspense } from "react"
 import Link from "next/link"
 
 
@@ -262,7 +262,6 @@ function InterviewsContent({ companyId }: { companyId: string }) {
 
 export default function CompanyInterviewsPage({
   params,
-  searchParams,
 }: {
   params: PageParams
   searchParams?: { [key: string]: string | string[] | undefined }
