@@ -75,11 +75,11 @@ const navigationData = {
             url: "/dashboard/candidate",
           },
           {
-            title: "Bewerbungen",
+            title: "Meine Bewerbungen",
             url: "#",
           },
           {
-            title: "Gespeicherte Jobs",
+            title: "Gemerkte Stellenangebote",
             url: "#",
           },
         ],
@@ -94,15 +94,15 @@ const navigationData = {
             url: "/dashboard/candidate/profile",
           },
           {
-            title: "Fähigkeiten",
+            title: "Qualifikationen",
             url: "/candidate/profile/skills",
           },
           {
-            title: "Erfahrung",
+            title: "Berufserfahrung",
             url: "/candidate/profile/experience",
           },
           {
-            title: "Ausbildung",
+            title: "Bildungsweg",
             url: "/candidate/profile/education",
           },
         ],
@@ -113,21 +113,21 @@ const navigationData = {
         icon: FileText,
         items: [
           {
-            title: "Aktiv",
+            title: "Laufende Bewerbungen",
             url: "/dashboard/candidate/applications",
           },
           {
-            title: "Verlauf",
+            title: "Bewerbungsverlauf",
             url: "/dashboard/candidate/applications/history",
           },
           {
-            title: "Kanban",
+            title: "Bewerbungsübersicht",
             url: "/dashboard/candidate/applications/kanban",
           },
         ],
       },
       {
-        title: "Terminübersicht",
+        title: "Vorstellungsgespräche",
         url: "/dashboard/candidate/interviews",
         icon: Calendar,
       },
@@ -146,7 +146,7 @@ const navigationData = {
             url: "/dashboard/company",
           },
           {
-            title: "Aktive Jobs",
+            title: "Aktive Stellenangebote",
             url: "/dashboard/company/jobs",
           },
           {
@@ -154,22 +154,22 @@ const navigationData = {
             url: "#",
           },
           {
-            title: "Termine",
+            title: "Terminkalender",
             url: "/dashboard/company/appointments",
           },
         ],
       },
       {
-        title: "Jobs",
+        title: "Stellenangebote",
         url: "/dashboard/company/jobs",
         icon: Briefcase,
         items: [
           {
-            title: "Jobs verwalten",
+            title: "Stellenangebote verwalten",
             url: "/dashboard/company/jobs",
           },
           {
-            title: "Kandidaten",
+            title: "Bewerber",
             url: "/dashboard/company/candidates",
           },
         ],
@@ -180,11 +180,11 @@ const navigationData = {
         icon: Building2,
         items: [
           {
-            title: "Profil",
+            title: "Unternehmensprofil",
             url: "/dashboard/company/profile",
           },
           {
-            title: "Team",
+            title: "Team-Mitglieder",
             url: "#",
           },
           {
