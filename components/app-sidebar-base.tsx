@@ -1,22 +1,22 @@
 "use client"
 
 import React from "react"
-import Image from "next/image"
+
 import { useRouter } from "next/navigation"
 import { 
-  BookOpen, 
-  Bot, 
+
+
   Briefcase, 
   Building2, 
   Calendar, 
-  Command, 
+
   FileText, 
   Frame, 
   LifeBuoy, 
   Map, 
   PieChart, 
   Send, 
-  Settings2, 
+
   SquareTerminal,
   User
 } from "lucide-react"
