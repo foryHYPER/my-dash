@@ -8,7 +8,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { useState } from "react"
+import { useState, use } from "react"
 import Link from "next/link"
 
 interface Interview {
@@ -22,10 +22,12 @@ interface Interview {
   notes: string
 }
 
+type Params = Promise<{
+  companyId: string
+}>
+
 interface PageProps {
-  params: {
-    companyId: string
-  }
+  params: Params
   searchParams?: { [key: string]: string | string[] | undefined }
 }
 
@@ -71,10 +73,11 @@ const mockCompanyInterviews = (companyId: string) => ({
 })
 
 export default function CompanyInterviewsPage({ params }: PageProps) {
+  const resolvedParams = use(params)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedStatus, setSelectedStatus] = useState<string>("all")
   const [selectedType, setSelectedType] = useState<string>("all")
-  const interviews = mockCompanyInterviews(params.companyId).interviews
+  const interviews = mockCompanyInterviews(resolvedParams.companyId).interviews
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null)
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false)
 
@@ -121,8 +124,8 @@ export default function CompanyInterviewsPage({ params }: PageProps) {
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl font-bold">{mockCompanyInterviews(params.companyId).company.name}</h1>
-              <p className="text-sm text-muted-foreground">{mockCompanyInterviews(params.companyId).company.position}</p>
+              <h1 className="text-3xl font-bold">{mockCompanyInterviews(resolvedParams.companyId).company.name}</h1>
+              <p className="text-sm text-muted-foreground">{mockCompanyInterviews(resolvedParams.companyId).company.position}</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
