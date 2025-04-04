@@ -6,7 +6,7 @@ export function createClient() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!supabaseUrl || !supabaseKey) {
-    console.error("Supabase Umgebungsvariablen fehlen. Stelle sicher, dass NEXT_PUBLIC_SUPABASE_URL und NEXT_PUBLIC_SUPABASE_ANON_KEY in der .env.local Datei korrekt definiert sind.");
+    console.error("Supabase-Umgebungsvariablen fehlen. Die Anwendung wird möglicherweise nicht korrekt funktionieren.");
   }
   
   console.log("Client Supabase Connection:");
@@ -14,7 +14,7 @@ export function createClient() {
   console.log("Key provided:", !!supabaseKey);
   
   return createBrowserClient(
-    supabaseUrl || "",
-    supabaseKey || ""
+    supabaseUrl || '',
+    supabaseKey || ''
   );
 }

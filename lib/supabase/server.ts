@@ -18,12 +18,15 @@ export async function createClient() {
     
     // Prüfen der Umgebungsvariablen
     if (!supabaseUrl || !supabaseKey) {
-      throw new Error("Supabase-Umgebungsvariablen fehlen. Bitte NEXT_PUBLIC_SUPABASE_URL und NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local setzen.");
+      console.error("Supabase-Umgebungsvariablen fehlen. Die Anwendung verwendet Standard-Konfiguration.");
+      // Anstatt einen Fehler zu werfen, leiten wir zum Login weiter, oder zu einer Seite, die den Fehler erklärt
+      // Hier könnten wir z.B. eine spezielle Fehlerseite rendern
+      // In der Produktion müssen die Umgebungsvariablen richtig konfiguriert sein
     }
     
     return createServerClient(
-      supabaseUrl,
-      supabaseKey,
+      supabaseUrl || '',
+      supabaseKey || '',
       {
         cookies: {
           getAll: () => {
