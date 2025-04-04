@@ -1,33 +1,27 @@
 "use client"
 
-import React from "react"
-
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { 
-
-
-  Briefcase, 
-  Building2, 
-  Calendar, 
-
-  FileText, 
-  Frame, 
-  LifeBuoy, 
-  Map, 
-  PieChart, 
-  Send, 
-
+import * as React from "react"
+import {
+  BookOpen,
+  Bot,
+  Building2,
+  Command,
+  Frame,
+  LifeBuoy,
+  Map,
+  PieChart,
+  Send,
+  Settings2,
   SquareTerminal,
-  User
+  User,
 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { Role } from "@/lib/supabase"
 
-import { NavMain } from "./nav-main"
-import { NavProjects } from "./nav-projects"
-import { NavSecondary } from "./nav-secondary"
-import { NavUser } from "./nav-user"
+import { NavMain } from "@/components/nav-main"
+import { NavProjects } from "@/components/nav-projects"
+import { NavSecondary } from "@/components/nav-secondary"
+import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -38,167 +32,159 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-const navigationData = {
-  admin: {
-    navMain: [
-      {
-        title: "Dashboard",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Übersicht",
-            url: "/dashboard/admin",
-          },
-          {
-            title: "Benutzer",
-            url: "/dashboard/admin/users",
-          },
-          {
-            title: "Einstellungen",
-            url: "/dashboard/admin/settings",
-          },
-        ],
-      },
-    ],
+// Base data structure
+const allNavData = {
+  user: {
+    name: "shadcn",
+    email: "m@example.com",
+    avatar: "/avatars/shadcn.jpg",
   },
-  candidate: {
-    navMain: [
-      {
-        title: "Dashboard",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Übersicht",
-            url: "/dashboard/candidate",
-          },
-          {
-            title: "Meine Bewerbungen",
-            url: "#",
-          },
-          {
-            title: "Gemerkte Stellenangebote",
-            url: "#",
-          },
-        ],
-      },
-      {
-        title: "Profil",
-        url: "#",
-        icon: User,
-        items: [
-          {
-            title: "Persönliche Daten",
-            url: "/dashboard/candidate/profile",
-          },
-          {
-            title: "Qualifikationen",
-            url: "/candidate/profile/skills",
-          },
-          {
-            title: "Berufserfahrung",
-            url: "/candidate/profile/experience",
-          },
-          {
-            title: "Bildungsweg",
-            url: "/candidate/profile/education",
-          },
-        ],
-      },
-      {
-        title: "Bewerbungen",
-        url: "#",
-        icon: FileText,
-        items: [
-          {
-            title: "Laufende Bewerbungen",
-            url: "/dashboard/candidate/applications",
-          },
-          {
-            title: "Bewerbungsverlauf",
-            url: "/dashboard/candidate/applications/history",
-          },
-          {
-            title: "Bewerbungsübersicht",
-            url: "/dashboard/candidate/applications/kanban",
-          },
-        ],
-      },
-      {
-        title: "Vorstellungsgespräche",
-        url: "/dashboard/candidate/interviews",
-        icon: Calendar,
-      },
-    ],
-  },
-  company: {
-    navMain: [
-      {
-        title: "Dashboard",
-        url: "#",
-        icon: SquareTerminal,
-        isActive: true,
-        items: [
-          {
-            title: "Übersicht",
-            url: "/dashboard/company",
-          },
-          {
-            title: "Aktive Stellenangebote",
-            url: "/dashboard/company/jobs",
-          },
-          {
-            title: "Bewerbungen",
-            url: "#",
-          },
-          {
-            title: "Terminkalender",
-            url: "/dashboard/company/appointments",
-          },
-        ],
-      },
-      {
-        title: "Stellenangebote",
-        url: "/dashboard/company/jobs",
-        icon: Briefcase,
-        items: [
-          {
-            title: "Stellenangebote verwalten",
-            url: "/dashboard/company/jobs",
-          },
-          {
-            title: "Bewerber",
-            url: "/dashboard/company/candidates",
-          },
-        ],
-      },
-      {
-        title: "Unternehmen",
-        url: "#",
-        icon: Building2,
-        items: [
-          {
-            title: "Unternehmensprofil",
-            url: "/dashboard/company/profile",
-          },
-          {
-            title: "Team-Mitglieder",
-            url: "#",
-          },
-          {
-            title: "Einstellungen",
-            url: "#",
-          },
-        ],
-      },
-    ],
-  },
+  navMain: [
+    {
+      title: "Spielwiese",
+      url: "#",
+      icon: SquareTerminal,
+      isActive: true,
+      roles: ["admin"],
+      items: [
+        {
+          title: "Verlauf",
+          url: "#",
+        },
+        {
+          title: "Favoriten",
+          url: "#",
+        },
+        {
+          title: "Einstellungen",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Unternehmen",
+      url: "/dashboard/company",
+      icon: Building2,
+      roles: ["company", "admin"],
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard/company",
+        },
+        {
+          title: "Stellenangebote",
+          url: "/dashboard/company/jobs",
+        },
+        {
+          title: "Kandidaten",
+          url: "/dashboard/company/candidates",
+        },
+        {
+          title: "Termine",
+          url: "/dashboard/company/appointments",
+        },
+        {
+          title: "Profil",
+          url: "/dashboard/company/profile",
+        },
+      ],
+    },
+    {
+      title: "Kandidat",
+      url: "/dashboard/candidate",
+      icon: User,
+      roles: ["candidate", "admin"],
+      items: [
+        {
+          title: "Dashboard",
+          url: "/dashboard/candidate",
+        },
+        {
+          title: "Bewerbungen",
+          url: "/dashboard/candidate/applications",
+        },
+        {
+          title: "Vorstellungsgespräche",
+          url: "/dashboard/candidate/interviews",
+        },
+        {
+          title: "Profil",
+          url: "/dashboard/candidate/profile",
+        },
+      ],
+    },
+    {
+      title: "Modelle",
+      url: "#",
+      icon: Bot,
+      roles: ["admin"],
+      items: [
+        {
+          title: "Genesis",
+          url: "#",
+        },
+        {
+          title: "Explorer",
+          url: "#",
+        },
+        {
+          title: "Quantum",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Dokumentation",
+      url: "#",
+      icon: BookOpen,
+      roles: ["admin", "company", "candidate"],
+      items: [
+        {
+          title: "Einführung",
+          url: "#",
+        },
+        {
+          title: "Erste Schritte",
+          url: "#",
+        },
+        {
+          title: "Tutorials",
+          url: "#",
+        },
+        {
+          title: "Änderungsprotokoll",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Einstellungen",
+      url: "#",
+      icon: Settings2,
+      roles: ["admin", "company", "candidate"],
+      items: [
+        {
+          title: "Allgemein",
+          url: "#",
+        },
+        {
+          title: "Team",
+          url: "#",
+        },
+        {
+          title: "Abrechnung",
+          url: "#",
+        },
+        {
+          title: "Limits",
+          url: "#",
+        },
+      ],
+    },
+  ],
   navSecondary: [
     {
-      title: "Support",
+      title: "Hilfe",
       url: "#",
       icon: LifeBuoy,
     },
@@ -227,65 +213,88 @@ const navigationData = {
   ],
 }
 
-interface User {
-  name: string
-  email: string
-  avatar: string
-  role: Role
-}
+export function AppSidebar({ 
+  user,
+  ...props 
+}: { 
+  user?: { 
+    name: string
+    email: string
+    avatar: string
+    role: string
+  }
+} & React.ComponentProps<typeof Sidebar>) {
+  const [userRole, setUserRole] = useState<string | null>(user?.role || null)
+  const [data, setData] = useState({
+    navMain: [] as typeof allNavData.navMain,
+    navSecondary: allNavData.navSecondary,
+    projects: allNavData.projects,
+    user: user || allNavData.user
+  })
 
-interface AppSidebarProps {
-  user: User
-}
-
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
-  const router = useRouter()
-  const supabase = createClient()
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut()
-      if (error) {
-        console.error('Error logging out:', error.message)
-        return
-      }
-      router.push('/login')
-    } catch (error) {
-      console.error('Error in logout:', error)
-      router.push('/login')
+  useEffect(() => {
+    // If user prop is provided, use that role
+    if (user?.role) {
+      setUserRole(user.role)
+      return
     }
-  }
 
-  const validRole = user.role === 'candidate' || user.role === 'company' ? user.role : 'candidate'
+    // Otherwise fetch from Supabase
+    async function getUserRole() {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          // Fetch user profile to get role
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile?.role) {
+            setUserRole(profile.role)
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user role:", error)
+      }
+    }
 
-  const navigation = {
-    navMain: navigationData[validRole]?.navMain || [],
-    navSecondary: navigationData.navSecondary,
-    projects: navigationData.projects,
-  }
+    getUserRole()
+  }, [user])
+
+  useEffect(() => {
+    if (userRole) {
+      // Filter navigation items based on user role
+      const filteredNavMain = allNavData.navMain.filter(item => 
+        item.roles && item.roles.includes(userRole)
+      )
+      
+      setData(prevData => ({
+        ...prevData,
+        navMain: filteredNavMain
+      }))
+    }
+  }, [userRole])
 
   return (
-    <Sidebar 
-      className="h-[calc(100vh-3.5rem)] border-r sticky top-[3.5rem]"
+    <Sidebar
+      className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
       {...props}
     >
-      <SidebarHeader className="pt-2">
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Image 
-                    src="/logo.png" 
-                    alt="RE-24 JOBS" 
-                    className="h-5 w-auto" 
-                    width={20}
-                    height={20}
-                  />
+                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">RE24 JOBS</span>
-                  <span className="truncate text-xs">{validRole}</span>
+                  <span className="truncate font-medium">RE-24 Jobs</span>
+                  <span className="truncate text-xs">Test</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -293,28 +302,13 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* Main navigation items */}
-        <NavMain items={navigation.navMain} />
-        
-        {/* Projects section if available */}
-        {navigation.projects && navigation.projects.length > 0 && (
-          <NavProjects projects={navigation.projects} />
-        )}
-        
-        {/* Secondary navigation with mt-auto to push it down but above footer */}
-        <NavSecondary items={navigation.navSecondary} className="mt-auto" />
+        <NavMain items={data.navMain} />
+        <NavProjects projects={data.projects} />
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        {/* User information at the bottom */}
-        <NavUser 
-          user={{
-            name: user.name || user.email,
-            email: user.email,
-            avatar: user.avatar || ''
-          }}
-          onLogout={handleLogout}
-        />
+        <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
   )
-} 
+}
