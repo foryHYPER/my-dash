@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { redirect } from 'next/navigation'
 
 export async function createClient() {
   try {
@@ -18,15 +19,36 @@ export async function createClient() {
     
     // Prüfen der Umgebungsvariablen
     if (!supabaseUrl || !supabaseKey) {
-      console.error("Supabase-Umgebungsvariablen fehlen. Die Anwendung verwendet Standard-Konfiguration.");
-      // Anstatt einen Fehler zu werfen, leiten wir zum Login weiter, oder zu einer Seite, die den Fehler erklärt
-      // Hier könnten wir z.B. eine spezielle Fehlerseite rendern
-      // In der Produktion müssen die Umgebungsvariablen richtig konfiguriert sein
+      console.error("Supabase-Umgebungsvariablen fehlen. Weiterleitung zur Fehlerseite.");
+      
+      // In einer Server-Komponente können wir bei Fehlern zur Fehlerseite umleiten
+      // In einer Middleware oder Server-Action sollten wir einen Fehler werfen
+      try {
+        redirect('/api/error?message=missing_env_vars');
+      } catch (redirectError) {
+        // Ignoriere den Redirect-Fehler, falls diese Funktion in einem Kontext
+        // aufgerufen wird, der redirect nicht unterstützt (z.B. getStaticProps)
+        console.error("Konnte nicht zur Fehlerseite umleiten", redirectError);
+      }
+      
+      // Wenn wir diesen Punkt erreichen, was in manchen Fällen passieren kann,
+      // müssen wir eine Instanz erzeugen, die zwar nicht funktioniert, aber
+      // zumindest keinen Laufzeitfehler verursacht
+      return createServerClient(
+        'https://placeholder-url.supabase.co',
+        'placeholder-key',
+        {
+          cookies: {
+            getAll: () => [],
+            setAll: () => {}
+          }
+        }
+      )
     }
     
     return createServerClient(
-      supabaseUrl || '',
-      supabaseKey || '',
+      supabaseUrl,
+      supabaseKey,
       {
         cookies: {
           getAll: () => {
