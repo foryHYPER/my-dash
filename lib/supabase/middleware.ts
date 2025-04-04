@@ -1,56 +1,70 @@
-import { createServerClient } from '@supabase/ssr';
-import { NextResponse, type NextRequest } from 'next/server';
-import { AuthError } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
-  // API-Routen überspringen
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    return NextResponse.next();
-  }
+  // Erstelle eine initiale Response, die wir später modifizieren
+  let supabaseResponse = NextResponse.next({
+    request,
+  })
 
-  let supabaseResponse = NextResponse.next({ request });
-
+  // Erstelle einen Supabase Client für die Middleware
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll();
+          return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options: cookieOptions }) =>
-            supabaseResponse.cookies.set(name, value, cookieOptions)
-          );
+          // 1. Setze die Cookies in der Request (für nachfolgende Server-Komponenten)
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          
+          // 2. Erstelle eine neue Response mit den aktualisierten Cookies
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          
+          // 3. Setze die Cookies in der Response (für den Browser)
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
         },
       },
     }
-  );
+  )
 
-  let user = null;
-  try {
-    const { data } = await supabase.auth.getUser();
-    user = data.user;
-  } catch (error: unknown) {
-    if (error instanceof AuthError && error.code !== 'refresh_token_not_found') {
-      console.error('Unexpected error during token refresh:', error);
-    }
-    // Bei 'refresh_token_not_found' einfach den Fehler ignorieren
-  }
+  // WICHTIG: Füge keinen Code zwischen createServerClient und
+  // supabase.auth.getUser() ein. Ein einfacher Fehler könnte es sehr schwer machen,
+  // Probleme mit zufällig abgemeldeten Benutzern zu debuggen.
 
-  // Falls kein User vorhanden ist und der Request nicht auf Login oder Auth-Seiten gerichtet ist,
-  // leite den Nutzer zur Login-Seite um.
+  // WICHTIG: ENTFERNE NICHT auth.getUser()
+  // Dieser Aufruf ist entscheidend für die Aktualisierung der Auth-Token
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // Schütze Routen, die eine Authentifizierung erfordern
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth')
   ) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+    // Kein Benutzer gefunden und keine öffentliche Route -> Umleitung zur Login-Seite
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
-  return supabaseResponse;
+  // WICHTIG: Du *musst* das supabaseResponse-Objekt zurückgeben
+  // Wenn du eine neue Response mit NextResponse.next() erstellst, stelle sicher:
+  // 1. Die Request wird übergeben:
+  //    const myNewResponse = NextResponse.next({ request })
+  // 2. Die Cookies werden kopiert:
+  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
+  // 3. Die myNewResponse kann nach Bedarf angepasst werden, aber vermeide
+  //    Änderungen an den Cookies!
+  // 4. Schließlich: return myNewResponse
+  
+  return supabaseResponse
 }
