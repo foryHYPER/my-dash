@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { ArrowUpRight, ArrowDownRight } from "lucide-react"
+import Image from "next/image"
 
 interface Stock {
   id: string
@@ -103,7 +104,13 @@ export default function List02({ stocks = STOCKS, className }: List02Props) {
             )}
           >
             <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-              <img src={stock.logo || "/placeholder.svg"} alt={stock.name} className="w-5 h-5" />
+              <Image 
+                src={stock.logo || "/placeholder.svg"} 
+                alt={stock.name} 
+                className="w-5 h-5" 
+                width={20}
+                height={20}
+              />
             </div>
 
             <div className="flex-1 flex items-center justify-between min-w-0">
